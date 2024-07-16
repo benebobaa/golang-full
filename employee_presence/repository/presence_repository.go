@@ -54,13 +54,14 @@ func (p *PresenceRepository) Delete(id int) error {
 	return fmt.Errorf("Employee with id: %d not found", id)
 }
 
-func (p *PresenceRepository) FindById(id int) (*model.Employee, error) {
+func (p *PresenceRepository) FindById(employee *model.Employee) error {
 
 	for _, v := range p.data {
-		if id == v.ID {
-			return &v, nil
+		if employee.ID == v.ID {
+			*employee = v
+			return nil
 		}
 	}
 
-	return nil, fmt.Errorf("Employee with id: %d not found", id)
+	return fmt.Errorf("Employee with id: %d not found", employee.ID)
 }

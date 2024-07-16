@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"employee_presence/model"
 	"employee_presence/repository"
+	"employee_presence/util"
 	"employee_presence/view"
 	"fmt"
 	"os"
@@ -13,6 +14,11 @@ func main() {
 	// Init
 	pr := repository.NewPresenceRepository()
 	scanner := bufio.NewScanner(os.Stdin)
+
+	for i := 0; i < 5; i++ {
+		random := model.Employee{Name: fmt.Sprintf("%s %s", util.RandomString(5), util.RandomString(6))}
+		pr.Save(random)
+	}
 
 	fmt.Print("\n")
 	view.Menu()
@@ -63,14 +69,19 @@ func main() {
 				fmt.Println("Error: should input a number")
 				continue
 			}
-			employee, err := pr.FindById(*id)
+
+			var employee = model.Employee{
+				ID: *id,
+			}
+
+			err = pr.FindById(&employee)
 			if err != nil {
 				fmt.Println("Error: ", err.Error())
 				continue
 			}
 
 			fmt.Println()
-			view.Table([]model.Employee{*employee})
+			view.Table([]model.Employee{employee})
 			fmt.Println()
 
 			if employee.Presence {
@@ -86,7 +97,7 @@ func main() {
 			if input == "y" || input == "Y" {
 
 				employee.Presence = !employee.Presence
-				err = pr.Update(*employee)
+				err = pr.Update(employee)
 
 				if err != nil {
 					fmt.Println("Error: ", err.Error())
@@ -96,7 +107,7 @@ func main() {
 				fmt.Println("Success update employee with id: ", *id)
 
 			} else if input == "n" || input == "N" {
-				fmt.Println("Cancel update employee id: ", id)
+				fmt.Println("Cancel update employee id: ", *id)
 			} else {
 				fmt.Println("Your input wrong!")
 			}
