@@ -84,6 +84,8 @@ func main() {
 
 			fmt.Printf("Your number %s is %s ", numberStr, oddOrEven)
 			fmt.Println()
+		case "6":
+			return
 		}
 	}
 }
