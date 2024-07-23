@@ -28,11 +28,9 @@ func convertStrToInt(str string) int {
 }
 
 func findOddOrEven(number int) string {
-
 	if number%2 == 0 {
 		return "even"
 	} else {
 		return "odd"
 	}
-
 }
