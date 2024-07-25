@@ -1,9 +1,5 @@
-github.com/benebobaa/gofuture v1.0.0 h1:3zcnUqrQxoiuQQBXWdiOS276vXiqndAH6OkASECnZQE=
-github.com/benebobaa/gofuture v1.0.0/go.mod h1:Njme0msnw/B+47ZLcanrG9/Y0I6dhrWEsYGM3QVIJWI=
-github.com/benebobaa/hatetepe v1.0.2 h1:eylIJt4OmlS0IzG8WSiLcSoxOPOT1tfzCGiajMaI7lw=
-github.com/benebobaa/hatetepe v1.0.2/go.mod h1:1jmqQSULMRrgsffQzwFm1UvtSlNTGRsG+KIub0cMZEo=
-github.com/benebobaa/valo v1.0.1 h1:uyD3sTbz9TRjn1G7MzPdCPHGSg4fx3GwSdAbSPPdmBg=
-github.com/benebobaa/valo v1.0.1/go.mod h1:hMBSx/XowUWQkFXxR7ZdRv66pI0XE6pCjfKfzBSFZaA=
+github.com/benebobaa/valo v1.1.1 h1:qqFqa82u1N5KxoA72cjGsp2sxOz7/hkyeKEgNHrlg7g=
+github.com/benebobaa/valo v1.1.1/go.mod h1:hMBSx/XowUWQkFXxR7ZdRv66pI0XE6pCjfKfzBSFZaA=
 github.com/coreos/go-systemd/v22 v22.5.0/go.mod h1:Y58oyj3AT4RCenI/lSvhwexgC+NSVTIJ3seZv2GcEnc=
 github.com/godbus/dbus/v5 v5.0.4/go.mod h1:xhWf0FNVPg57R7Z0UbKHbJfkEywrmjJnf7w5xrFpKfA=
 github.com/mattn/go-colorable v0.1.13 h1:fFA4WZxdEF4tXPZVKMLwD8oUnCTTo08duU7wxecdEvA=

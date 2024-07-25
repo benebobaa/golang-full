@@ -6,8 +6,13 @@ import (
 	"sync/atomic"
 )
 
+type User struct {
+	Name string
+}
+
 var balance int
 var balanceSafe atomic.Int32
+var balanceSafe2 atomic.Pointer[User]
 
 func main() {
 	wg := &sync.WaitGroup{}
