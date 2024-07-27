@@ -1,5 +1,5 @@
 package interfaces
 
-type Getaller[T any] interface {
+type Getter[T any] interface {
 	GetAll() []T
 }

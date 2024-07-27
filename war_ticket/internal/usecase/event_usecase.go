@@ -11,7 +11,7 @@ type EventUsecaseImpl struct {
 }
 
 type EventUsecase interface {
-	interfaces.Getaller[domain.Event]
+	interfaces.Getter[domain.Event]
 	interfaces.Saver[domain.Event]
 }
 

@@ -1,34 +1,42 @@
 package repository
 
 import (
+	"sync"
 	"time"
 	"war_ticket/internal/domain"
-	"war_ticket/internal/err"
+	errr "war_ticket/internal/err"
 	"war_ticket/internal/interfaces"
 )
 
 type TicketRepositoryImpl struct {
 	Tickets map[int]domain.Ticket
 	lastID  int
-	now     time.Time
+	mutex   sync.RWMutex
 }
-
 type TicketRepository interface {
 	interfaces.Saver[domain.Ticket]
-	interfaces.Getaller[domain.Ticket]
+	interfaces.Getter[domain.Ticket]
+	interfaces.Finder[domain.Ticket]
+	interfaces.Updater[domain.Ticket]
 }
 
 func NewTicketRepository() TicketRepository {
 	return &TicketRepositoryImpl{
 		Tickets: make(map[int]domain.Ticket),
 		lastID:  0,
-		now:     time.Now(),
+		mutex:   sync.RWMutex{},
 	}
 }
 
 // GetAll implements TicketRepository.
 func (t *TicketRepositoryImpl) GetAll() []domain.Ticket {
-	panic("unimplemented")
+	var tickets []domain.Ticket
+
+	for _, v := range t.Tickets {
+		tickets = append(tickets, v)
+	}
+
+	return tickets
 }
 
 // Save implements TicketRepository.
@@ -36,17 +44,45 @@ func (t *TicketRepositoryImpl) Save(value *domain.Ticket) (*domain.Ticket, error
 	t.lastID++
 
 	value.ID = t.lastID
-	value.CreatedAt = t.now.Format(time.DateTime)
-	value.UpdatedAt = t.now.Format(time.DateTime)
+	value.CreatedAt = time.Now().Format(time.DateTime)
+	value.UpdatedAt = time.Now().Format(time.DateTime)
 
 	_, ok := t.Tickets[value.ID]
 
 	if ok {
-		return nil, err.ErrDuplicateID
+		return nil, errr.ErrDuplicateID
 	}
 
 	t.Tickets[value.ID] = *value
 
 	return value, nil
 
+}
+
+// FindByID implements TicketRepository.
+func (t *TicketRepositoryImpl) FindByID(id int) (*domain.Ticket, error) {
+	// t.mutex.Lock()
+	// defer t.mutex.Unlock()
+	value, ok := t.Tickets[id]
+
+	if !ok {
+		return nil, errr.ErrNotFound
+	}
+
+	return &value, nil
+}
+
+// Update implements TicketRepository.
+func (t *TicketRepositoryImpl) Update(value *domain.Ticket) (*domain.Ticket, error) {
+	// t.mutex.Lock()
+	// defer t.mutex.Unlock()
+	_, ok := t.Tickets[value.ID]
+
+	if !ok {
+		return nil, errr.ErrNotFound
+	}
+
+	t.Tickets[value.ID] = *value
+
+	return value, nil
 }

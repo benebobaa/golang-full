@@ -8,7 +8,7 @@ import (
 	"war_ticket/pkg"
 )
 
-func initHandler() (handler.EventHandler, handler.TicketHandler) {
+func initHandler() (handler.EventHandler, handler.TicketHandler, handler.OrderHandler) {
 
 	er := repository.NewEventRepository()
 	ec := usecase.NewEventUsecase(er)
@@ -20,14 +20,19 @@ func initHandler() (handler.EventHandler, handler.TicketHandler) {
 	tc := usecase.NewTicketUsecase(er, tr, ter)
 	th := handler.NewTicketHandler(tc)
 
+	or := repository.NewOrderRepository()
+	oc := usecase.NewOrderUsecase(or, tr)
+	oh := handler.NewOrderHandler(oc)
+
 	generateEvent(ec)
 
-	return eh, th
+	return eh, th, oh
 }
 
 func initRouter(
 	eventHandler handler.EventHandler,
 	ticketHandler handler.TicketHandler,
+	orderHandler handler.OrderHandler,
 ) *pkg.Router {
 
 	router := pkg.NewRouter()
@@ -39,6 +44,11 @@ func initRouter(
 	// ticket
 	router.GET("/api/tickets", ticketHandler.FindAll)
 	router.POST("/api/tickets", ticketHandler.Create)
+
+	// order
+	router.GET("/api/orders", orderHandler.FindAll)
+	router.POST("/api/orders", orderHandler.Create)
+	router.GET("/api/orders/length", orderHandler.GetTotalElements)
 
 	return router
 }
