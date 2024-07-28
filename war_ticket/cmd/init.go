@@ -2,6 +2,7 @@ package main
 
 import (
 	"war_ticket/internal/domain"
+	"war_ticket/internal/domain/dto"
 	"war_ticket/internal/handler"
 	"war_ticket/internal/repository"
 	"war_ticket/internal/usecase"
@@ -25,6 +26,7 @@ func initHandler() (handler.EventHandler, handler.TicketHandler, handler.OrderHa
 	oh := handler.NewOrderHandler(oc)
 
 	generateEvent(ec)
+	generateTicket(tc)
 
 	return eh, th, oh
 }
@@ -66,4 +68,31 @@ func generateEvent(ec usecase.EventUsecase) {
 
 	ec.Save(&event1)
 	ec.Save(&event2)
+}
+
+func generateTicket(tc usecase.TicketUsecase) {
+	ticket1 := dto.TicketRequest{
+		EventID: 1,
+		Ticket: domain.Ticket{
+			Name:  "VIP 1",
+			Stock: 10,
+			Price: 5000,
+		},
+	}
+	ticket2 := dto.TicketRequest{
+		EventID: 1,
+		Ticket: domain.Ticket{
+			Name:  "CAT 1",
+			Stock: 10,
+			Price: 250,
+		},
+	}
+	tc.Save(&ticket1)
+	tc.Save(&ticket2)
+
+	ticket1.EventID = 2
+	ticket2.EventID = 2
+
+	tc.Save(&ticket1)
+	tc.Save(&ticket2)
 }

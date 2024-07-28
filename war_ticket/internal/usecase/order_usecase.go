@@ -38,8 +38,8 @@ func (o *OrderUsecaseImpl) GetAll() []domain.Order {
 
 // Save implements OrderUsecase.
 func (o *OrderUsecaseImpl) CreateOrder(value *dto.OrderRequest) (*domain.Order, error) {
-	o.mutext.Lock()
-	defer o.mutext.Unlock()
+	// o.mutext.Lock()
+	// defer o.mutext.Unlock()
 
 	var totalPrice float64
 	var tickets []domain.Ticket
