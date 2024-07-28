@@ -9,8 +9,8 @@ type LogFormat struct {
 	ProcessTime uint
 	Data        interface{}
 	Error       string
-	Status      string
-	Message     string
+	Type        string
+	Message     string `json:"-"`
 	IsSuccess   bool
 }
 

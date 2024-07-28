@@ -83,7 +83,7 @@ func generateTicket(tc usecase.TicketUsecase) {
 		EventID: 1,
 		Ticket: domain.Ticket{
 			Name:  "CAT 1",
-			Stock: 10,
+			Stock: 100,
 			Price: 250,
 		},
 	}

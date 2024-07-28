@@ -74,8 +74,8 @@ func (t *TicketRepositoryImpl) FindByID(id int) (*domain.Ticket, error) {
 
 // Update implements TicketRepository.
 func (t *TicketRepositoryImpl) Update(value *domain.Ticket) (*domain.Ticket, error) {
-	// t.mutex.Lock()
-	// defer t.mutex.Unlock()
+	t.mutex.Lock()
+	defer t.mutex.Unlock()
 	_, ok := t.Tickets[value.ID]
 
 	if !ok {

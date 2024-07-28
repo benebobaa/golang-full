@@ -106,10 +106,22 @@ func (o *OrderHandlerImpl) Create(w http.ResponseWriter, r *http.Request) {
 
 // FindAll implements OrderHandler.
 func (o *OrderHandlerImpl) FindAll(w http.ResponseWriter, r *http.Request) {
+	var logger pkg.LogFormat
+
+	startTime := time.Now()
+
+	defer func() {
+		logger.ProcessTime = uint(time.Now().Sub(startTime).Milliseconds())
+		logger.Execute()
+	}()
 
 	result := o.orderUsecase.GetAll()
 
 	w.Header().Add("Content-Type", "application/json")
+
+	logger.IsSuccess = true
+	logger.Message = "Success get all orders"
+	logger.HttpStatus = http.StatusOK
 
 	w.WriteHeader(http.StatusOK)
 	json.WriteToResponseBody(

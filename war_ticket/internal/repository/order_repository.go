@@ -40,11 +40,20 @@ func (o *OrderRepositoryImpl) GetAll() []domain.Order {
 
 // Save implements OrderRepository.
 func (o *OrderRepositoryImpl) Save(value *domain.Order) (*domain.Order, error) {
-	// o.mutex.Lock()
-	// defer o.mutex.Unlock()
+	o.mutex.Lock()
+	defer o.mutex.Unlock()
+	var totalPrice float64
+
 	o.lastID++
+	for _, v := range value.Tickets {
+		var subTotal float64
+
+		subTotal = v.Price * float64(v.Stock)
+		totalPrice += subTotal
+	}
 
 	value.ID = o.lastID
+	value.TotalPrice = totalPrice
 	value.CreatedAt = time.Now().Format(time.DateTime)
 	value.UpdatedAt = time.Now().Format(time.DateTime)
 
