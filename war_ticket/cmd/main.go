@@ -12,9 +12,9 @@ import (
 
 func main() {
 
-	eventHandler, ticketHandler, orderHandler := initHandler()
+	eventHandler, ticketHandler, orderHandler, userRepository := initHandler()
 
-	router := initRouter(eventHandler, ticketHandler, orderHandler)
+	router := initRouter(eventHandler, ticketHandler, orderHandler, userRepository)
 
 	server := http.Server{
 		Addr:    ":8080",

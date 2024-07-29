@@ -76,7 +76,7 @@ func (o *OrderHandlerImpl) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := o.orderUsecase.CreateOrder(&request)
+	result, err := o.orderUsecase.CreateOrder(r.Context(), &request)
 
 	if err != nil {
 		logger.Error = err.Error()

@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"war_ticket/internal/domain"
 	"war_ticket/internal/domain/dto"
 	"war_ticket/internal/interfaces"
@@ -14,7 +15,7 @@ type TicketUsecaseImpl struct {
 }
 
 type TicketUsecase interface {
-	Save(value *dto.TicketRequest) (*dto.TicketResponse, error)
+	Save(ctx context.Context, value *dto.TicketRequest) (*dto.TicketResponse, error)
 	interfaces.Getter[domain.Ticket]
 	GetAllWithEvent() ([]dto.TicketEventResponse, error)
 }
@@ -32,7 +33,7 @@ func NewTicketUsecase(
 }
 
 // Save implements TicketUsecase.
-func (t *TicketUsecaseImpl) Save(value *dto.TicketRequest) (*dto.TicketResponse, error) {
+func (t *TicketUsecaseImpl) Save(ctx context.Context, value *dto.TicketRequest) (*dto.TicketResponse, error) {
 
 	event, err := t.eventRepository.FindByID(value.EventID)
 
@@ -46,7 +47,7 @@ func (t *TicketUsecaseImpl) Save(value *dto.TicketRequest) (*dto.TicketResponse,
 		Price: value.Price,
 	}
 
-	ticket, err := t.ticketRepository.Save(&ticketRequest)
+	ticket, err := t.ticketRepository.Save(ctx, &ticketRequest)
 
 	if err != nil {
 		return nil, err
@@ -57,7 +58,7 @@ func (t *TicketUsecaseImpl) Save(value *dto.TicketRequest) (*dto.TicketResponse,
 		TicketID: ticket.ID,
 	}
 
-	_, err = t.ticketEventRepository.Save(&ticketEvent)
+	_, err = t.ticketEventRepository.Save(ctx, &ticketEvent)
 
 	if err != nil {
 		return nil, err

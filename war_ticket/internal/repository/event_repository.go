@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"time"
 	"war_ticket/internal/domain"
 	"war_ticket/internal/err"
@@ -37,7 +38,7 @@ func (e *EventRepositoryImpl) GetAll() []domain.Event {
 }
 
 // Save implements EventRepository.
-func (e *EventRepositoryImpl) Save(value *domain.Event) (*domain.Event, error) {
+func (e *EventRepositoryImpl) Save(ctx context.Context, value *domain.Event) (*domain.Event, error) {
 	e.lastID++
 
 	value.ID = e.lastID

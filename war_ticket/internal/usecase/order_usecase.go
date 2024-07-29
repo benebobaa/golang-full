@@ -1,10 +1,12 @@
 package usecase
 
 import (
+	"context"
 	"war_ticket/internal/domain"
 	"war_ticket/internal/domain/dto"
 	errr "war_ticket/internal/err"
 	"war_ticket/internal/interfaces"
+	"war_ticket/internal/middleware"
 	"war_ticket/internal/repository"
 )
 
@@ -14,7 +16,7 @@ type OrderUsecaseImpl struct {
 }
 
 type OrderUsecase interface {
-	CreateOrder(value *dto.OrderRequest) (*domain.Order, error)
+	CreateOrder(ctx context.Context, value *dto.OrderRequest) (*domain.Order, error)
 	interfaces.Getter[domain.Order]
 }
 
@@ -34,13 +36,9 @@ func (o *OrderUsecaseImpl) GetAll() []domain.Order {
 }
 
 // Save implements OrderUsecase.
-func (o *OrderUsecaseImpl) CreateOrder(value *dto.OrderRequest) (*domain.Order, error) {
+func (o *OrderUsecaseImpl) CreateOrder(ctx context.Context, value *dto.OrderRequest) (*domain.Order, error) {
 
 	var tickets []domain.Ticket
-
-	if len(value.Tickets) < 1 {
-		return nil, errr.ErrTicketsRequestEmpty
-	}
 
 	for _, v := range value.Tickets {
 		ticket, err := o.ticketRepository.FindByID(v.TicketID)
@@ -64,9 +62,17 @@ func (o *OrderUsecaseImpl) CreateOrder(value *dto.OrderRequest) (*domain.Order, 
 		tickets = append(tickets, *ticket)
 	}
 
+	user, ok := ctx.Value(middleware.ContextUserKey).(*domain.User)
+
+	if !ok {
+		return nil, errr.ErrUserContextEmpty
+	}
+
 	result, err := o.orderRepository.Save(
+		ctx,
 		&domain.Order{
 			Customer: value.Name,
+			Username: user.Username,
 			Tickets:  tickets,
 		},
 	)

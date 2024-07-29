@@ -76,7 +76,7 @@ func (t *TicketHandlerImpl) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := t.ticketUsecase.Save(&request)
+	result, err := t.ticketUsecase.Save(r.Context(), &request)
 
 	if err != nil {
 		logger = pkg.LogFormat{

@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"time"
 	"war_ticket/internal/domain"
 	errr "war_ticket/internal/err"
@@ -25,7 +26,7 @@ func NewTicketEventRepository() TicketEventRepository {
 }
 
 // Save implements TicketEventRepository.
-func (t *TicketEventRepositoryImpl) Save(value *domain.TicketEvent) (*domain.TicketEvent, error) {
+func (t *TicketEventRepositoryImpl) Save(ctx context.Context, value *domain.TicketEvent) (*domain.TicketEvent, error) {
 	t.lastID++
 
 	value.ID = t.lastID

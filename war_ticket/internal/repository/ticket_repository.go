@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"sync"
 	"time"
 	"war_ticket/internal/domain"
@@ -40,7 +41,7 @@ func (t *TicketRepositoryImpl) GetAll() []domain.Ticket {
 }
 
 // Save implements TicketRepository.
-func (t *TicketRepositoryImpl) Save(value *domain.Ticket) (*domain.Ticket, error) {
+func (t *TicketRepositoryImpl) Save(ctx context.Context, value *domain.Ticket) (*domain.Ticket, error) {
 	t.lastID++
 
 	value.ID = t.lastID

@@ -7,4 +7,5 @@ var (
 	ErrNotFound            = errors.New("error not found")
 	ErrTicketOutOfStock    = errors.New("error ticket out of stock")
 	ErrTicketsRequestEmpty = errors.New("error tickets request empty")
+	ErrUserContextEmpty    = errors.New("error user credentials context empty")
 )

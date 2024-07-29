@@ -1,15 +1,20 @@
 package main
 
 import (
+	"context"
+	"log"
 	"war_ticket/internal/domain"
 	"war_ticket/internal/domain/dto"
 	"war_ticket/internal/handler"
+	"war_ticket/internal/middleware"
 	"war_ticket/internal/repository"
 	"war_ticket/internal/usecase"
 	"war_ticket/pkg"
+
+	"github.com/google/uuid"
 )
 
-func initHandler() (handler.EventHandler, handler.TicketHandler, handler.OrderHandler) {
+func initHandler() (handler.EventHandler, handler.TicketHandler, handler.OrderHandler, repository.UserRepository) {
 
 	er := repository.NewEventRepository()
 	ec := usecase.NewEventUsecase(er)
@@ -25,16 +30,20 @@ func initHandler() (handler.EventHandler, handler.TicketHandler, handler.OrderHa
 	oc := usecase.NewOrderUsecase(or, tr)
 	oh := handler.NewOrderHandler(oc)
 
+	ur := repository.NewUserRepository()
+
 	generateEvent(ec)
 	generateTicket(tc)
+	generateUser(ur)
 
-	return eh, th, oh
+	return eh, th, oh, ur
 }
 
 func initRouter(
 	eventHandler handler.EventHandler,
 	ticketHandler handler.TicketHandler,
 	orderHandler handler.OrderHandler,
+	userRepository repository.UserRepository,
 ) *pkg.Router {
 
 	router := pkg.NewRouter()
@@ -49,7 +58,7 @@ func initRouter(
 
 	// order
 	router.GET("/api/orders", orderHandler.FindAll)
-	router.POST("/api/orders", orderHandler.Create)
+	router.POST("/api/orders", middleware.AuthMiddleware(orderHandler.Create, userRepository))
 	router.GET("/api/orders/length", orderHandler.GetTotalElements)
 
 	return router
@@ -66,8 +75,8 @@ func generateEvent(ec usecase.EventUsecase) {
 		Location: "Blok M",
 	}
 
-	ec.Save(&event1)
-	ec.Save(&event2)
+	ec.Save(context.Background(), &event1)
+	ec.Save(context.Background(), &event2)
 }
 
 func generateTicket(tc usecase.TicketUsecase) {
@@ -87,12 +96,29 @@ func generateTicket(tc usecase.TicketUsecase) {
 			Price: 250,
 		},
 	}
-	tc.Save(&ticket1)
-	tc.Save(&ticket2)
+	tc.Save(context.Background(), &ticket1)
+	tc.Save(context.Background(), &ticket2)
 
 	ticket1.EventID = 2
 	ticket2.EventID = 2
 
-	tc.Save(&ticket1)
-	tc.Save(&ticket2)
+	tc.Save(context.Background(), &ticket1)
+	tc.Save(context.Background(), &ticket2)
+}
+
+func generateUser(userRepository repository.UserRepository) {
+
+	user1 := domain.User{
+		ApiKey:   uuid.NewString(),
+		Username: "kapallaut",
+	}
+	user2 := domain.User{
+		ApiKey:   uuid.NewString(),
+		Username: "beneboba",
+	}
+
+	userRepository.Save(context.Background(), &user1)
+	userRepository.Save(context.Background(), &user2)
+	log.Println("user 1 :: ", user1)
+	log.Println("user 2 :: ", user2)
 }

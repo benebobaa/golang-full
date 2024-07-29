@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"sync"
 	"time"
 	"war_ticket/internal/domain"
@@ -39,7 +40,7 @@ func (o *OrderRepositoryImpl) GetAll() []domain.Order {
 }
 
 // Save implements OrderRepository.
-func (o *OrderRepositoryImpl) Save(value *domain.Order) (*domain.Order, error) {
+func (o *OrderRepositoryImpl) Save(ctx context.Context, value *domain.Order) (*domain.Order, error) {
 	o.mutex.Lock()
 	defer o.mutex.Unlock()
 	var totalPrice float64

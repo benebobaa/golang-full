@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"war_ticket/internal/domain"
 	"war_ticket/internal/interfaces"
 	"war_ticket/internal/repository"
@@ -27,9 +28,9 @@ func (e *EventUsecaseImpl) GetAll() []domain.Event {
 }
 
 // Save implements EventUsecase.
-func (e *EventUsecaseImpl) Save(value *domain.Event) (*domain.Event, error) {
+func (e *EventUsecaseImpl) Save(ctx context.Context, value *domain.Event) (*domain.Event, error) {
 
-	event, err := e.eventRepository.Save(value)
+	event, err := e.eventRepository.Save(ctx, value)
 
 	if err != nil {
 		return nil, err

@@ -76,7 +76,7 @@ func (e *EventHandlerImpl) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := e.eventUsecase.Save(&request)
+	result, err := e.eventUsecase.Save(r.Context(), &request)
 
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
