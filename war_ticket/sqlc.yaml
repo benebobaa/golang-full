@@ -1,0 +1,30 @@
+version: "2"
+
+sql:
+  - engine: "postgresql"
+    schema: "db/migrations"
+    queries: "db/query"
+    gen:
+      go:
+        package: "sqlc"
+        out: "internal/repository/sqlc"
+        emit_interface: true
+        emit_exact_table_names: false
+        # emit_prepared_queries: true
+        emit_methods_with_db_argument: false
+        emit_json_tags: true
+        emit_empty_slices: true
+        overrides:
+        - db_type: "timestamptz"
+          go_type: "time.Time"
+        - db_type: "uuid"
+          go_type: "github.com/google/uuid.UUID"
+
+# settings:
+#   parseTime: true
+#   loc: "Local"
+
+# logger:
+#   level: "info"
+#   format: "json"
+#   destination: "stdout"

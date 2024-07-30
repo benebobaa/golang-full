@@ -2,28 +2,37 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"log"
 	"war_ticket/internal/domain"
 	"war_ticket/internal/domain/dto"
 	"war_ticket/internal/handler"
 	"war_ticket/internal/middleware"
 	"war_ticket/internal/repository"
+	"war_ticket/internal/repository/db_repo"
+	"war_ticket/internal/repository/sqlc"
 	"war_ticket/internal/usecase"
 	"war_ticket/pkg"
 
 	"github.com/google/uuid"
 )
 
-func initHandler() (handler.EventHandler, handler.TicketHandler, handler.OrderHandler, repository.UserRepository) {
+func initHandler(db *sql.DB) (handler.EventHandler, handler.TicketHandler, handler.OrderHandler, repository.UserRepository) {
+
+	dbUr := db_repo.NewUserRepository(db)
+	dbEr := db_repo.NewEventRepository(db)
+	dbTr := db_repo.NewTicketRepository(db)
+
+	sqlc := sqlc.New(db)
 
 	er := repository.NewEventRepository()
-	ec := usecase.NewEventUsecase(er)
+	ec := usecase.NewEventUsecase(er, dbEr)
 	eh := handler.NewEventHandler(ec)
 
 	ter := repository.NewTicketEventRepository()
 
 	tr := repository.NewTicketRepository()
-	tc := usecase.NewTicketUsecase(er, tr, ter)
+	tc := usecase.NewTicketUsecase(er, tr, ter, dbEr, dbTr, sqlc)
 	th := handler.NewTicketHandler(tc)
 
 	or := repository.NewOrderRepository()
@@ -35,6 +44,7 @@ func initHandler() (handler.EventHandler, handler.TicketHandler, handler.OrderHa
 	generateEvent(ec)
 	generateTicket(tc)
 	generateUser(ur)
+	generateUser(dbUr)
 
 	return eh, th, oh, ur
 }

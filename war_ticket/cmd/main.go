@@ -8,11 +8,20 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+	"war_ticket/internal/provider/db"
 )
 
 func main() {
 
-	eventHandler, ticketHandler, orderHandler, userRepository := initHandler()
+	driver := os.Getenv("DRIVER")
+	dsn := os.Getenv("DSN")
+
+	log.Println("DRIVER :: ", driver)
+	log.Println("DSN :: ", dsn)
+
+	db := db.NewDB(driver, dsn)
+
+	eventHandler, ticketHandler, orderHandler, userRepository := initHandler(db)
 
 	router := initRouter(eventHandler, ticketHandler, orderHandler, userRepository)
 
@@ -37,7 +46,7 @@ func main() {
 	<-quit
 	log.Println("Shutdown Server ...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
 	if err := server.Shutdown(ctx); err != nil {
