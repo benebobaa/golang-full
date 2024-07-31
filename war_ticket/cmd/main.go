@@ -24,9 +24,11 @@ func main() {
 
 	dbConn := db.NewDB(driver, dsn)
 
-	eventHandler, ticketHandler, orderHandler, userRepository := initHandler(dbConn)
+	inject := initHandler(dbConn)
 
-	router := initRouter(eventHandler, ticketHandler, orderHandler, userRepository)
+	//router := initRouter(eventHandler, ticketHandler, orderHandler, userRepository)
+
+	router := initRouterGin(inject.geh, inject.gth, inject.goh, inject.ur)
 
 	server := http.Server{
 		Addr:    ":8080",

@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"war_ticket/internal/domain"
 	"war_ticket/internal/repository"
@@ -36,6 +37,32 @@ func AuthMiddleware(next http.HandlerFunc, userRepo repository.UserRepository) h
 
 		ctx := context.WithValue(r.Context(), ContextUserKey, user)
 		next.ServeHTTP(w, r.WithContext(ctx))
+	}
+}
+
+func AuthMiddlewareGin(userRepo repository.UserRepository) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			logger pkg.LogFormat
+			user   *domain.User
+			err    error
+		)
+
+		defer func() {
+			logger.Execute()
+		}()
+
+		apiKey := c.GetHeader("X-API-Key")
+
+		if user, err = isValidAPIKey(apiKey, userRepo); err != nil {
+			logger.Error = err.Error()
+			logger.Message = "Unauthorized request"
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			return
+		}
+
+		c.Set(string(ContextUserKey), user)
+		c.Next()
 	}
 }
 

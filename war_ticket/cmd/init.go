@@ -3,10 +3,12 @@ package main
 import (
 	"context"
 	"database/sql"
+	"github.com/gin-gonic/gin"
 	"log"
 	"war_ticket/internal/domain"
 	"war_ticket/internal/domain/dto"
 	"war_ticket/internal/handler"
+	gin_handler "war_ticket/internal/handler/gin"
 	"war_ticket/internal/middleware"
 	"war_ticket/internal/repository"
 	"war_ticket/internal/repository/db_repo"
@@ -17,7 +19,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func initHandler(db *sql.DB) (handler.EventHandler, handler.TicketHandler, handler.OrderHandler, db_repo.UserRepository) {
+func initHandler(db *sql.DB) *Inject {
 
 	dbUr := db_repo.NewUserRepository(db)
 	dbEr := db_repo.NewEventRepository(db)
@@ -41,12 +43,25 @@ func initHandler(db *sql.DB) (handler.EventHandler, handler.TicketHandler, handl
 	oc := usecase.NewOrderUsecase(or, tr, db, sqlcQueries)
 	oh := handler.NewOrderHandler(oc)
 
+	// gin handler
+	geh := gin_handler.NewEventHandler(ec)
+	gth := gin_handler.NewTicketHandler(tc)
+	goh := gin_handler.NewOrderHandler(oc)
+
 	generateEvent(ec)
 	generateTicket(tc)
 	generateUser(ur)
 	generateUser(dbUr)
 
-	return eh, th, oh, ur
+	return &Inject{
+		eh:  eh,
+		th:  th,
+		oh:  oh,
+		geh: geh,
+		gth: gth,
+		goh: goh,
+		ur:  ur,
+	}
 }
 
 func initRouter(
@@ -70,6 +85,40 @@ func initRouter(
 	router.GET("/api/orders", orderHandler.FindAll)
 	router.POST("/api/orders", middleware.AuthMiddleware(orderHandler.Create, userRepository))
 	router.GET("/api/orders/length", orderHandler.GetTotalElements)
+
+	return router
+}
+
+func initRouterGin(
+	eventHandler gin_handler.EventHandler,
+	ticketHandler gin_handler.TicketHandler,
+	orderHandler gin_handler.OrderHandler,
+	userRepository repository.UserRepository,
+) *gin.Engine {
+	router := gin.Default()
+
+	apiGroup := router.Group("/api")
+
+	// event routes
+	eventsGroup := apiGroup.Group("/events")
+	{
+		eventsGroup.GET("", eventHandler.FindAll)
+		eventsGroup.POST("", eventHandler.Create)
+	}
+
+	// ticket routes
+	ticketsGroup := apiGroup.Group("/tickets")
+	{
+		ticketsGroup.GET("", ticketHandler.FindAll)
+		ticketsGroup.POST("", ticketHandler.Create)
+	}
+
+	// order routes
+	ordersGroup := apiGroup.Group("/orders")
+	{
+		ordersGroup.GET("", orderHandler.FindAll)
+		ordersGroup.POST("", middleware.AuthMiddlewareGin(userRepository), orderHandler.Create)
+	}
 
 	return router
 }

@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"database/sql"
+	"log"
 	"war_ticket/internal/domain"
 	"war_ticket/internal/domain/dto"
 	errr "war_ticket/internal/err"
@@ -95,7 +96,7 @@ func (o *OrderUsecaseImpl) CreateOrder(ctx context.Context, value *dto.OrderRequ
 	}
 
 	user, ok := ctx.Value(middleware.ContextUserKey).(*domain.User)
-
+	log.Println("user :: ", user)
 	if !ok {
 		return nil, errr.ErrUserContextEmpty
 	}
