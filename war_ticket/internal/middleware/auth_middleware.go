@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"war_ticket/internal/domain"
 	"war_ticket/internal/repository"
+	"war_ticket/internal/repository/db_repo"
 	"war_ticket/pkg"
 )
 
@@ -38,7 +39,7 @@ func AuthMiddleware(next http.HandlerFunc, userRepo repository.UserRepository) h
 	}
 }
 
-func isValidAPIKey(apiKey string, userRepository repository.UserRepository) (*domain.User, error) {
+func isValidAPIKey(apiKey string, userRepository db_repo.UserRepository) (*domain.User, error) {
 
 	user, err := userRepository.FindByApiKey(apiKey)
 

@@ -17,13 +17,15 @@ import (
 	"github.com/google/uuid"
 )
 
-func initHandler(db *sql.DB) (handler.EventHandler, handler.TicketHandler, handler.OrderHandler, repository.UserRepository) {
+func initHandler(db *sql.DB) (handler.EventHandler, handler.TicketHandler, handler.OrderHandler, db_repo.UserRepository) {
 
 	dbUr := db_repo.NewUserRepository(db)
 	dbEr := db_repo.NewEventRepository(db)
 	dbTr := db_repo.NewTicketRepository(db)
 
-	sqlc := sqlc.New(db)
+	sqlcQueries := sqlc.New(db)
+
+	ur := db_repo.NewUserRepository(db)
 
 	er := repository.NewEventRepository()
 	ec := usecase.NewEventUsecase(er, dbEr)
@@ -32,14 +34,12 @@ func initHandler(db *sql.DB) (handler.EventHandler, handler.TicketHandler, handl
 	ter := repository.NewTicketEventRepository()
 
 	tr := repository.NewTicketRepository()
-	tc := usecase.NewTicketUsecase(er, tr, ter, dbEr, dbTr, sqlc)
+	tc := usecase.NewTicketUsecase(er, tr, ter, dbEr, dbTr, sqlcQueries)
 	th := handler.NewTicketHandler(tc)
 
 	or := repository.NewOrderRepository()
-	oc := usecase.NewOrderUsecase(or, tr)
+	oc := usecase.NewOrderUsecase(or, tr, sqlcQueries)
 	oh := handler.NewOrderHandler(oc)
-
-	ur := repository.NewUserRepository()
 
 	generateEvent(ec)
 	generateTicket(tc)

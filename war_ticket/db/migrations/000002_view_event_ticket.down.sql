@@ -1,0 +1,1 @@
+DROP VIEW IF EXISTS ticket_event_view

@@ -17,14 +17,7 @@ type Event struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type Order struct {
-	ID         int32     `json:"id"`
-	Customer   string    `json:"customer"`
-	Username   string    `json:"username"`
-	TotalPrice float64   `json:"total_price"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
-}
+type Order = domain.Order
 
 type OrderTicket struct {
 	OrderID  int32 `json:"order_id"`

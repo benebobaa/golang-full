@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log"
 	"net/http"
 	"os"
@@ -13,15 +14,17 @@ import (
 
 func main() {
 
-	driver := os.Getenv("DRIVER")
-	dsn := os.Getenv("DSN")
+	//driver := os.Getenv("DRIVER")
+	//dsn := os.Getenv("DSN")
+	driver := "postgres"
+	dsn := "postgresql://root:root@localhost:5432/warticket?sslmode=disable"
 
 	log.Println("DRIVER :: ", driver)
 	log.Println("DSN :: ", dsn)
 
-	db := db.NewDB(driver, dsn)
+	dbConn := db.NewDB(driver, dsn)
 
-	eventHandler, ticketHandler, orderHandler, userRepository := initHandler(db)
+	eventHandler, ticketHandler, orderHandler, userRepository := initHandler(dbConn)
 
 	router := initRouter(eventHandler, ticketHandler, orderHandler, userRepository)
 
@@ -32,7 +35,7 @@ func main() {
 
 	go func() {
 		log.Println("Starting server...")
-		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("listen: %s\n", err)
 		}
 	}()

@@ -9,10 +9,15 @@ import (
 )
 
 type Querier interface {
+	CreateOrder(ctx context.Context, arg CreateOrderParams) (Order, error)
+	ListOrdersWithTickets(ctx context.Context) ([]Order, error)
+	CreateOrderTicket(ctx context.Context, arg CreateOrderTicketParams) error
 	CreateTicket(ctx context.Context, arg CreateTicketParams) (Ticket, error)
 	CreateTicketEvent(ctx context.Context, arg CreateTicketEventParams) error
+	GetTicket(ctx context.Context, id int32) (Ticket, error)
 	ListTickets(ctx context.Context) ([]Ticket, error)
 	ListTicketsWithEvents(ctx context.Context) ([]TicketEvent, error)
+	UpdateStock(ctx context.Context, arg UpdateStockParams) error
 }
 
 var _ Querier = (*Queries)(nil)

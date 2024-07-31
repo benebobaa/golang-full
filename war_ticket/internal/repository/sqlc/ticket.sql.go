@@ -34,6 +34,24 @@ func (q *Queries) CreateTicket(ctx context.Context, arg CreateTicketParams) (Tic
 	return i, err
 }
 
+const getTicket = `-- name: GetTicket :one
+SELECT id, name, stock, price, created_at, updated_at FROM tickets WHERE id = $1
+`
+
+func (q *Queries) GetTicket(ctx context.Context, id int32) (Ticket, error) {
+	row := q.db.QueryRowContext(ctx, getTicket, id)
+	var i Ticket
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Stock,
+		&i.Price,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const listTickets = `-- name: ListTickets :many
 SELECT id, name, stock, price, created_at, updated_at FROM tickets
 `
@@ -66,4 +84,18 @@ func (q *Queries) ListTickets(ctx context.Context) ([]Ticket, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateStock = `-- name: UpdateStock :exec
+UPDATE tickets SET stock = stock - $1 WHERE id = $2
+`
+
+type UpdateStockParams struct {
+	Stock int32 `json:"stock"`
+	ID    int32 `json:"id"`
+}
+
+func (q *Queries) UpdateStock(ctx context.Context, arg UpdateStockParams) error {
+	_, err := q.db.ExecContext(ctx, updateStock, arg.Stock, arg.ID)
+	return err
 }

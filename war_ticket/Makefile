@@ -1,4 +1,4 @@
-.PHONY: build run test createdb dropdb migratecreate migrateup migratedown sqlc
+.PHONY: build run test createdb dropdb migratecreate migrateup migratedown sqlc dsn
 
 # build:
 # 	go build -o myapp ./cmd/api
@@ -23,6 +23,8 @@ migratedown:
 
 migrateup:
 	migrate -path db/migrations -database "postgresql://root:root@localhost:5432/warticket?sslmode=disable" -verbose up
+
+
 
 sqlc:
 	sqlc generate
