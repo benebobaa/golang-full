@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"database/sql"
 	"war_ticket/internal/domain"
 	"war_ticket/internal/domain/dto"
 	errr "war_ticket/internal/err"
@@ -14,7 +15,8 @@ import (
 type OrderUsecaseImpl struct {
 	orderRepository  repository.OrderRepository
 	ticketRepository repository.TicketRepository
-	sqlcQueries      sqlc.Querier
+	DB               *sql.DB
+	sqlcQueries      *sqlc.Queries
 }
 
 type OrderUsecase interface {
@@ -25,11 +27,13 @@ type OrderUsecase interface {
 func NewOrderUsecase(
 	or repository.OrderRepository,
 	tr repository.TicketRepository,
-	sqlcQueries sqlc.Querier,
+	db *sql.DB,
+	sqlcQueries *sqlc.Queries,
 ) OrderUsecase {
 	return &OrderUsecaseImpl{
 		orderRepository:  or,
 		ticketRepository: tr,
+		DB:               db,
 		sqlcQueries:      sqlcQueries,
 	}
 }
@@ -43,13 +47,26 @@ func (o *OrderUsecaseImpl) GetAll() []domain.Order {
 // Save implements OrderUsecase.
 func (o *OrderUsecaseImpl) CreateOrder(ctx context.Context, value *dto.OrderRequest) (*domain.Order, error) {
 
+	var err error
 	var tickets []domain.Ticket
 	var totalPrice float64
+
+	tx, err := o.DB.Begin()
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		}
+	}()
 
 	for _, v := range value.Tickets {
 		var subTotal float64
 
-		ticket, err := o.sqlcQueries.GetTicket(ctx, int32(v.TicketID))
+		ticket, err := o.sqlcQueries.WithTx(tx).GetTicket(ctx, int32(v.TicketID))
 
 		if err != nil {
 			return nil, err
@@ -61,7 +78,7 @@ func (o *OrderUsecaseImpl) CreateOrder(ctx context.Context, value *dto.OrderRequ
 
 		ticket.Stock = ticket.Stock - v.Quantity
 
-		err = o.sqlcQueries.UpdateStock(ctx, sqlc.UpdateStockParams{
+		err = o.sqlcQueries.WithTx(tx).UpdateStock(ctx, sqlc.UpdateStockParams{
 			ID:    int32(v.TicketID),
 			Stock: int32(ticket.Stock),
 		})
@@ -83,7 +100,7 @@ func (o *OrderUsecaseImpl) CreateOrder(ctx context.Context, value *dto.OrderRequ
 		return nil, errr.ErrUserContextEmpty
 	}
 
-	order, err := o.sqlcQueries.CreateOrder(ctx, sqlc.CreateOrderParams{
+	order, err := o.sqlcQueries.WithTx(tx).CreateOrder(ctx, sqlc.CreateOrderParams{
 		Customer:   value.Name,
 		Username:   user.Username,
 		TotalPrice: totalPrice,
@@ -94,7 +111,7 @@ func (o *OrderUsecaseImpl) CreateOrder(ctx context.Context, value *dto.OrderRequ
 	}
 
 	for _, v := range tickets {
-		err = o.sqlcQueries.CreateOrderTicket(ctx, sqlc.CreateOrderTicketParams{
+		err = o.sqlcQueries.WithTx(tx).CreateOrderTicket(ctx, sqlc.CreateOrderTicketParams{
 			OrderID:  int32(order.ID),
 			TicketID: int32(v.ID),
 		})
@@ -103,6 +120,8 @@ func (o *OrderUsecaseImpl) CreateOrder(ctx context.Context, value *dto.OrderRequ
 			return nil, err
 		}
 	}
+
+	tx.Commit()
 
 	return &domain.Order{
 		ID:         int(order.ID),

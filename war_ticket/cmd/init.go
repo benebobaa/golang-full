@@ -38,7 +38,7 @@ func initHandler(db *sql.DB) (handler.EventHandler, handler.TicketHandler, handl
 	th := handler.NewTicketHandler(tc)
 
 	or := repository.NewOrderRepository()
-	oc := usecase.NewOrderUsecase(or, tr, sqlcQueries)
+	oc := usecase.NewOrderUsecase(or, tr, db, sqlcQueries)
 	oh := handler.NewOrderHandler(oc)
 
 	generateEvent(ec)
