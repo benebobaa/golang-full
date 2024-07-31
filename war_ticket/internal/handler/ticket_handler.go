@@ -126,10 +126,12 @@ func (t *TicketHandlerImpl) FindAll(w http.ResponseWriter, r *http.Request) {
 	if query == "event" {
 		result, err = t.ticketUsecase.GetAllWithEvent()
 		if err != nil {
-			logger.IsSuccess = false
-			logger.HttpStatus = http.StatusInternalServerError
-			logger.Message = "Failed to get tickets with event"
-			logger.Error = err.Error()
+			logger = pkg.LogFormat{
+				IsSuccess:  false,
+				HttpStatus: http.StatusInternalServerError,
+				Message:    "Failed to get tickets with event",
+				Error:      err.Error(),
+			}
 
 			w.WriteHeader(http.StatusInternalServerError)
 			json.WriteToResponseBody(w, dto.BaseResponse[any]{
