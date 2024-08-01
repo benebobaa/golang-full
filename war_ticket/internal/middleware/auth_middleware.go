@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"war_ticket/internal/domain"
 	"war_ticket/internal/repository"
@@ -26,7 +27,7 @@ func AuthMiddleware(next http.HandlerFunc, userRepo repository.UserRepository) h
 			logger.Execute()
 		}()
 
-		apiKey := r.Header.Get("X-API-Key")
+		apiKey := r.Header.Get("X-API-KEY")
 
 		if user, err = isValidAPIKey(apiKey, userRepo); err != nil {
 			logger.Error = err.Error()
@@ -52,7 +53,7 @@ func AuthMiddlewareGin(userRepo repository.UserRepository) gin.HandlerFunc {
 			logger.Execute()
 		}()
 
-		apiKey := c.GetHeader("X-API-Key")
+		apiKey := c.GetHeader("X-API-KEY")
 
 		if user, err = isValidAPIKey(apiKey, userRepo); err != nil {
 			logger.Error = err.Error()
@@ -61,6 +62,7 @@ func AuthMiddlewareGin(userRepo repository.UserRepository) gin.HandlerFunc {
 			return
 		}
 
+		log.Println("user middle :: ", user)
 		c.Set(string(ContextUserKey), user)
 		c.Next()
 	}

@@ -8,6 +8,7 @@ import (
 	"war_ticket/internal/domain"
 	"war_ticket/internal/domain/dto"
 	"war_ticket/internal/interfaces"
+	"war_ticket/internal/middleware"
 	"war_ticket/internal/usecase"
 	"war_ticket/pkg"
 )
@@ -63,7 +64,21 @@ func (o *OrderHandlerImpl) Create(c *gin.Context) {
 		return
 	}
 
-	result, err := o.orderUsecase.CreateOrder(c.Request.Context(), &request)
+	user, exists := c.Get(string(middleware.ContextUserKey))
+
+	if !exists {
+		logger = pkg.LogFormat{
+			IsSuccess:  false,
+			HttpStatus: http.StatusUnauthorized,
+			Message:    "Unauthorized request",
+		}
+		c.JSON(http.StatusUnauthorized, dto.BaseResponse[*domain.Event]{
+			Error: "Unauthorized request",
+		})
+		return
+	}
+
+	result, err := o.orderUsecase.CreateOrder(c.Request.Context(), &request, user.(*domain.User))
 
 	if err != nil {
 		logger = pkg.LogFormat{

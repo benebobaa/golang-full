@@ -25,9 +25,9 @@ func NewUserRepository(db *sql.DB) UserRepository {
 // Save implements UserRepository.
 func (u *UserRepositoryImpl) Save(ctx context.Context, value *domain.User) (*domain.User, error) {
 
-	query := `INSERT INTO users(api_key, username) VALUES ($1, $2)`
+	query := `INSERT INTO users(username, api_key) VALUES ($1, $2)`
 
-	_, err := u.DB.ExecContext(ctx, query, value.ApiKey, value.Username)
+	_, err := u.DB.ExecContext(ctx, query, value.Username, value.ApiKey)
 
 	if err != nil {
 		return nil, err
@@ -41,7 +41,7 @@ func (u *UserRepositoryImpl) FindByApiKey(apiKey string) (*domain.User, error) {
 
 	var user domain.User
 
-	query := `SELECT username, api_key FROM users WHERE api_key = $1 LIMIT 1`
+	query := `SELECT * FROM users WHERE api_key = $1 LIMIT 1`
 
 	row := u.DB.QueryRow(query, apiKey)
 

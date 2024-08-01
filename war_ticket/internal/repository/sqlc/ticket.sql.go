@@ -35,7 +35,7 @@ func (q *Queries) CreateTicket(ctx context.Context, arg CreateTicketParams) (Tic
 }
 
 const getTicket = `-- name: GetTicket :one
-SELECT id, name, stock, price, created_at, updated_at FROM tickets WHERE id = $1
+SELECT id, name, stock, price, created_at, updated_at FROM tickets WHERE id = $1 FOR UPDATE
 `
 
 func (q *Queries) GetTicket(ctx context.Context, id int32) (Ticket, error) {
