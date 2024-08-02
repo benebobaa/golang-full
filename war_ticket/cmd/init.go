@@ -86,7 +86,7 @@ func initRouterGin(
 	orderHandler ginhandler.OrderHandler,
 	userRepository repository.UserRepository,
 ) *gin.Engine {
-	router := gin.Default()
+	router := gin.New()
 
 	apiGroup := router.Group("/api")
 

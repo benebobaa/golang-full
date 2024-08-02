@@ -19,7 +19,7 @@ migratecreate:
 	migrate create -ext sql -dir db/migrations -seq $(name)
 
 migratedown:
-	migrate -path db/migrations -database "postgresql://root:root@localhost:5432/warticket?sslmode=disable" -verbose down 1
+	migrate -path db/migrations -database "postgresql://root:root@localhost:5432/warticket?sslmode=disable" -verbose down
 
 migrateup:
 	migrate -path db/migrations -database "postgresql://root:root@localhost:5432/warticket?sslmode=disable" -verbose up

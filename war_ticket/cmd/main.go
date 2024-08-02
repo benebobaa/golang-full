@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"os"
@@ -26,8 +25,6 @@ func main() {
 	dbConn := db.NewDB(driver, dsn)
 
 	inject := initHandler(dbConn)
-
-	gin.New()
 
 	//router := initRouter(eventHandler, ticketHandler, orderHandler, userRepository)
 

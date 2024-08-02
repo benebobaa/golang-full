@@ -51,6 +51,7 @@ func (o *OrderUsecaseImpl) CreateOrder(ctx context.Context, value *dto.OrderRequ
 	var totalPrice float64
 
 	tx, err := o.DB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
+	//tx, err := o.DB.Begin()
 
 	if err != nil {
 		return nil, err
