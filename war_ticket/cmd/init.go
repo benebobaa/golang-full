@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"github.com/gin-gonic/gin"
 	"war_ticket/internal/handler"
-	gin_handler "war_ticket/internal/handler/gin"
+	ginhandler "war_ticket/internal/handler/gin"
 	"war_ticket/internal/middleware"
 	"war_ticket/internal/repository"
 	"war_ticket/internal/repository/db_repo"
@@ -36,9 +36,9 @@ func initHandler(db *sql.DB) *Inject {
 	oh := handler.NewOrderHandler(oc)
 
 	// gin handler
-	geh := gin_handler.NewEventHandler(ec)
-	gth := gin_handler.NewTicketHandler(tc)
-	goh := gin_handler.NewOrderHandler(oc)
+	geh := ginhandler.NewEventHandler(ec)
+	gth := ginhandler.NewTicketHandler(tc)
+	goh := ginhandler.NewOrderHandler(oc)
 
 	generateEvent(ec)
 	generateTicket(tc)
@@ -81,9 +81,9 @@ func initRouter(
 }
 
 func initRouterGin(
-	eventHandler gin_handler.EventHandler,
-	ticketHandler gin_handler.TicketHandler,
-	orderHandler gin_handler.OrderHandler,
+	eventHandler ginhandler.EventHandler,
+	ticketHandler ginhandler.TicketHandler,
+	orderHandler ginhandler.OrderHandler,
 	userRepository repository.UserRepository,
 ) *gin.Engine {
 	router := gin.Default()
