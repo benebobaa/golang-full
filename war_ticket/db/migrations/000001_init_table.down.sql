@@ -1,0 +1,13 @@
+
+DROP TABLE IF EXISTS users;
+
+DROP TABLE IF EXISTS order_tickets;
+
+DROP TABLE IF EXISTS orders;
+
+DROP TABLE IF EXISTS ticket_events;
+
+DROP TABLE IF EXISTS tickets;
+
+DROP TABLE IF EXISTS events;
+

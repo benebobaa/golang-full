@@ -79,7 +79,13 @@ func (e *EventHandlerImpl) Create(w http.ResponseWriter, r *http.Request) {
 	result, err := e.eventUsecase.Save(r.Context(), &request)
 
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		logger = pkg.LogFormat{
+			IsSuccess:  false,
+			HttpStatus: http.StatusInternalServerError,
+			Message:    "Error create event",
+			Error:      err.Error(),
+		}
+		w.WriteHeader(http.StatusInternalServerError)
 		json.WriteToResponseBody(
 			w,
 			dto.BaseResponse[*domain.Event]{

@@ -7,6 +7,7 @@ import (
 	"war_ticket/internal/domain/dto"
 	"war_ticket/internal/interfaces"
 	"war_ticket/internal/json"
+	"war_ticket/internal/middleware"
 	"war_ticket/internal/usecase"
 	"war_ticket/pkg"
 
@@ -76,12 +77,32 @@ func (o *OrderHandlerImpl) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := o.orderUsecase.CreateOrder(r.Context(), &request)
+	user := r.Context().Value(middleware.ContextUserKey).(*domain.User)
+
+	if user == nil {
+		logger = pkg.LogFormat{
+			IsSuccess:  false,
+			HttpStatus: http.StatusUnauthorized,
+			Message:    "Unauthorized request",
+		}
+		w.WriteHeader(http.StatusUnauthorized)
+		json.WriteToResponseBody(
+			w,
+			dto.BaseResponse[*domain.Event]{
+				Error: "Unauthorized request",
+			})
+		return
+	}
+
+	result, err := o.orderUsecase.CreateOrder(r.Context(), &request, user)
 
 	if err != nil {
-		logger.Error = err.Error()
-		logger.HttpStatus = http.StatusBadRequest
-		logger.Message = "Failed create order"
+		logger = pkg.LogFormat{
+			IsSuccess:  false,
+			HttpStatus: http.StatusBadRequest,
+			Message:    "Failed to create order",
+			Error:      err.Error(),
+		}
 		w.WriteHeader(http.StatusBadRequest)
 		json.WriteToResponseBody(
 			w,
@@ -91,10 +112,12 @@ func (o *OrderHandlerImpl) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logger.Data = result
-	logger.IsSuccess = true
-	logger.HttpStatus = http.StatusCreated
-	logger.Message = "Success created order"
+	logger = pkg.LogFormat{
+		IsSuccess:  true,
+		HttpStatus: http.StatusCreated,
+		Message:    "Successfully created order",
+		Data:       result,
+	}
 
 	w.WriteHeader(http.StatusCreated)
 	json.WriteToResponseBody(
@@ -119,9 +142,12 @@ func (o *OrderHandlerImpl) FindAll(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("Content-Type", "application/json")
 
-	logger.IsSuccess = true
-	logger.Message = "Success get all orders"
-	logger.HttpStatus = http.StatusOK
+	logger = pkg.LogFormat{
+		IsSuccess:  true,
+		HttpStatus: http.StatusOK,
+		Message:    "Successfully retrieved all orders",
+		Data:       result,
+	}
 
 	w.WriteHeader(http.StatusOK)
 	json.WriteToResponseBody(

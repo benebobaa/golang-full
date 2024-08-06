@@ -2,9 +2,12 @@ package middleware
 
 import (
 	"context"
+	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"war_ticket/internal/domain"
 	"war_ticket/internal/repository"
+	"war_ticket/internal/repository/db_repo"
 	"war_ticket/pkg"
 )
 
@@ -24,7 +27,7 @@ func AuthMiddleware(next http.HandlerFunc, userRepo repository.UserRepository) h
 			logger.Execute()
 		}()
 
-		apiKey := r.Header.Get("X-API-Key")
+		apiKey := r.Header.Get("X-API-KEY")
 
 		if user, err = isValidAPIKey(apiKey, userRepo); err != nil {
 			logger.Error = err.Error()
@@ -38,7 +41,34 @@ func AuthMiddleware(next http.HandlerFunc, userRepo repository.UserRepository) h
 	}
 }
 
-func isValidAPIKey(apiKey string, userRepository repository.UserRepository) (*domain.User, error) {
+func AuthMiddlewareGin(userRepo repository.UserRepository) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			logger pkg.LogFormat
+			user   *domain.User
+			err    error
+		)
+
+		defer func() {
+			logger.Execute()
+		}()
+
+		apiKey := c.GetHeader("X-API-KEY")
+
+		if user, err = isValidAPIKey(apiKey, userRepo); err != nil {
+			logger.Error = err.Error()
+			logger.Message = "Unauthorized request"
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			return
+		}
+
+		log.Println("user middle :: ", user)
+		c.Set(string(ContextUserKey), user)
+		c.Next()
+	}
+}
+
+func isValidAPIKey(apiKey string, userRepository db_repo.UserRepository) (*domain.User, error) {
 
 	user, err := userRepository.FindByApiKey(apiKey)
 

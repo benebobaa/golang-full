@@ -1,9 +1,10 @@
 package domain
 
 type Order struct {
-	Customer   string
-	Username   string
-	Tickets    []Ticket
-	TotalPrice float64
+	ID         int      `json:"id"`
+	Customer   string   `json:"customer"`
+	Username   string   `json:"username"`
+	Tickets    []Ticket `json:"tickets"`
+	TotalPrice float64  `json:"total_price"`
 	Common
 }

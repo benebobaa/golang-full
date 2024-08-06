@@ -2,19 +2,33 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+	"war_ticket/internal/provider/db"
 )
 
 func main() {
 
-	eventHandler, ticketHandler, orderHandler, userRepository := initHandler()
+	//driver := os.Getenv("DRIVER")
+	//dsn := os.Getenv("DSN")
+	driver := "postgres"
+	dsn := "postgresql://root:root@localhost:5432/warticket?sslmode=disable"
 
-	router := initRouter(eventHandler, ticketHandler, orderHandler, userRepository)
+	log.Println("DRIVER :: ", driver)
+	log.Println("DSN :: ", dsn)
+
+	dbConn := db.NewDB(driver, dsn)
+
+	inject := initHandler(dbConn)
+
+	//router := initRouter(eventHandler, ticketHandler, orderHandler, userRepository)
+
+	router := initRouterGin(inject.geh, inject.gth, inject.goh, inject.ur)
 
 	server := http.Server{
 		Addr:    ":8080",
@@ -23,7 +37,7 @@ func main() {
 
 	go func() {
 		log.Println("Starting server...")
-		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("listen: %s\n", err)
 		}
 	}()
@@ -37,7 +51,7 @@ func main() {
 	<-quit
 	log.Println("Shutdown Server ...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
 	if err := server.Shutdown(ctx); err != nil {

@@ -2,16 +2,22 @@ package usecase
 
 import (
 	"context"
+	"log"
 	"war_ticket/internal/domain"
 	"war_ticket/internal/domain/dto"
 	"war_ticket/internal/interfaces"
 	"war_ticket/internal/repository"
+	"war_ticket/internal/repository/db_repo"
+	"war_ticket/internal/repository/sqlc"
 )
 
 type TicketUsecaseImpl struct {
 	eventRepository       repository.EventRepository
 	ticketRepository      repository.TicketRepository
 	ticketEventRepository repository.TicketEventRepository
+	eventDbRepo           db_repo.EventRepository
+	ticketDbRepo          db_repo.TicketRepository
+	sqlcQueries           sqlc.Querier
 }
 
 type TicketUsecase interface {
@@ -24,41 +30,51 @@ func NewTicketUsecase(
 	er repository.EventRepository,
 	tr repository.TicketRepository,
 	ter repository.TicketEventRepository,
+	edr db_repo.EventRepository,
+	tdr db_repo.TicketRepository,
+	sqlcQueries sqlc.Querier,
 ) TicketUsecase {
 	return &TicketUsecaseImpl{
 		eventRepository:       er,
 		ticketRepository:      tr,
 		ticketEventRepository: ter,
+		eventDbRepo:           edr,
+		ticketDbRepo:          tdr,
+		sqlcQueries:           sqlcQueries,
 	}
 }
 
 // Save implements TicketUsecase.
 func (t *TicketUsecaseImpl) Save(ctx context.Context, value *dto.TicketRequest) (*dto.TicketResponse, error) {
 
-	event, err := t.eventRepository.FindByID(value.EventID)
+	log.Println("request :: ", value)
+
+	event, err := t.eventDbRepo.FindByID(value.EventID)
 
 	if err != nil {
 		return nil, err
 	}
 
-	ticketRequest := domain.Ticket{
-		Name:  value.Name,
-		Stock: value.Stock,
-		Price: value.Price,
-	}
-
-	ticket, err := t.ticketRepository.Save(ctx, &ticketRequest)
+	ticket, err := t.sqlcQueries.CreateTicket(
+		ctx,
+		sqlc.CreateTicketParams{
+			Name:  value.Name,
+			Stock: int32(value.Stock),
+			Price: value.Price,
+		},
+	)
 
 	if err != nil {
 		return nil, err
 	}
 
-	ticketEvent := domain.TicketEvent{
-		EventID:  event.ID,
-		TicketID: ticket.ID,
-	}
-
-	_, err = t.ticketEventRepository.Save(ctx, &ticketEvent)
+	err = t.sqlcQueries.CreateTicketEvent(
+		ctx,
+		sqlc.CreateTicketEventParams{
+			EventID:  int32(event.ID),
+			TicketID: int32(ticket.ID),
+		},
+	)
 
 	if err != nil {
 		return nil, err
@@ -66,43 +82,24 @@ func (t *TicketUsecaseImpl) Save(ctx context.Context, value *dto.TicketRequest) 
 
 	return &dto.TicketResponse{
 		Event:  *event,
-		Ticket: *ticket,
+		Ticket: ticket,
 	}, nil
 }
 
 // GetAll implements TicketUsecase.
 func (t *TicketUsecaseImpl) GetAll() []domain.Ticket {
-	return t.ticketRepository.GetAll()
+	// result, _ := t.sqlcQueries.ListTickets(context.Background())
+	// return result
+	result, _ := t.sqlcQueries.ListTickets(context.Background())
+	return result
 }
 
 // GetAllWithEvent implements TicketUsecase.
 func (t *TicketUsecaseImpl) GetAllWithEvent() ([]dto.TicketEventResponse, error) {
-	tEvents := t.ticketEventRepository.GetAll()
+	result, err := t.ticketDbRepo.ListTicketsWithEvents()
 
-	eventMap := make(map[int]*dto.TicketEventResponse)
-
-	for _, v := range tEvents {
-		if _, exists := eventMap[v.EventID]; !exists {
-			event, err := t.eventRepository.FindByID(v.EventID)
-			if err != nil {
-				return nil, err
-			}
-			eventMap[v.EventID] = &dto.TicketEventResponse{
-				Event: *event,
-			}
-		}
-
-		ticket, err := t.ticketRepository.FindByID(v.TicketID)
-		if err != nil {
-			return nil, err
-		}
-
-		eventMap[v.EventID].Tickets = append(eventMap[v.EventID].Tickets, *ticket)
-	}
-
-	result := make([]dto.TicketEventResponse, 0, len(eventMap))
-	for _, resp := range eventMap {
-		result = append(result, *resp)
+	if err != nil {
+		return nil, err
 	}
 
 	return result, nil

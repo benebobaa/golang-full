@@ -1,0 +1,318 @@
+{
+	"info": {
+		"_postman_id": "dc9d5829-9340-4ded-b3e8-f9bcf5e4ae88",
+		"name": "War Ticket",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "32678637"
+	},
+	"item": [
+		{
+			"name": "Get All Events",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "bene",
+						"value": "bobaw",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/api/events",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"events"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Get All Events",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "bene",
+								"value": "bobaw",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/events",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"events"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 02 Aug 2024 10:06:34 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "282"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"data\": [\n        {\n            \"id\": 1,\n            \"name\": \"Lomba joget\",\n            \"location\": \"Jaksel\",\n            \"created_at\": \"2024-08-02T10:06:30.210116Z\",\n            \"updated_at\": \"2024-08-02T10:06:30.210116Z\"\n        },\n        {\n            \"id\": 2,\n            \"name\": \"Konser Nyanyi\",\n            \"location\": \"Blok M\",\n            \"created_at\": \"2024-08-02T10:06:30.21602Z\",\n            \"updated_at\": \"2024-08-02T10:06:30.21602Z\"\n        }\n    ]\n}"
+				}
+			]
+		},
+		{
+			"name": "Create New Event",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\":\"aw aw aw\",\n    \"location\":\"jogja\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/api/events",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"events"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create New Ticket",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"event_id\" :1,\n    \"tickets\":{\n        \"name\":\"awww\",\n        \"stock\":1,\n        \"price\": 5\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/api/tickets",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"tickets"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All tickets",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/api/tickets?include=event",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"tickets"
+					],
+					"query": [
+						{
+							"key": "include",
+							"value": "event"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Get All tickets",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/api/tickets?include=event",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"tickets"
+							],
+							"query": [
+								{
+									"key": "include",
+									"value": "event"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 02 Aug 2024 10:07:53 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "981"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"data\": [\n        {\n            \"event\": {\n                \"id\": 2,\n                \"name\": \"Konser Nyanyi\",\n                \"location\": \"Blok M\",\n                \"created_at\": \"2024-08-02T10:06:30.21602Z\",\n                \"updated_at\": \"2024-08-02T10:06:30.21602Z\"\n            },\n            \"tickets\": [\n                {\n                    \"id\": 3,\n                    \"name\": \"VIP 1\",\n                    \"stock\": 10,\n                    \"price\": 5000,\n                    \"created_at\": \"2024-08-02T10:06:30.235763\",\n                    \"updated_at\": \"2024-08-02T10:06:30.235763\"\n                },\n                {\n                    \"id\": 4,\n                    \"name\": \"CAT 1\",\n                    \"stock\": 100,\n                    \"price\": 250,\n                    \"created_at\": \"2024-08-02T10:06:30.242514\",\n                    \"updated_at\": \"2024-08-02T10:06:30.242514\"\n                }\n            ]\n        },\n        {\n            \"event\": {\n                \"id\": 1,\n                \"name\": \"Lomba joget\",\n                \"location\": \"Jaksel\",\n                \"created_at\": \"2024-08-02T10:06:30.210116Z\",\n                \"updated_at\": \"2024-08-02T10:06:30.210116Z\"\n            },\n            \"tickets\": [\n                {\n                    \"id\": 1,\n                    \"name\": \"VIP 1\",\n                    \"stock\": 10,\n                    \"price\": 5000,\n                    \"created_at\": \"2024-08-02T10:06:30.220712\",\n                    \"updated_at\": \"2024-08-02T10:06:30.220712\"\n                },\n                {\n                    \"id\": 2,\n                    \"name\": \"CAT 1\",\n                    \"stock\": 100,\n                    \"price\": 250,\n                    \"created_at\": \"2024-08-02T10:06:30.228864\",\n                    \"updated_at\": \"2024-08-02T10:06:30.228864\"\n                },\n                {\n                    \"id\": 5,\n                    \"name\": \"awww\",\n                    \"stock\": 1,\n                    \"price\": 5,\n                    \"created_at\": \"2024-08-02T10:07:25.836985\",\n                    \"updated_at\": \"2024-08-02T10:07:25.836985\"\n                }\n            ]\n        }\n    ]\n}"
+				}
+			]
+		},
+		{
+			"name": "Create Order",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-API-Key",
+						"value": "8cc35f19-01c6-4105-870d-59e7b66d3eae",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\":\"supri\",\n    \"ticket_ids\":[\n        {\n            \"ticket_id\":1,\n            \"quantity\":1\n        },\n        {\n            \"ticket_id\":4,\n            \"quantity\":1\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/api/orders",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All Orders",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/api/orders",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"orders"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "All Orders",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/api/orders",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"orders"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 02 Aug 2024 10:09:00 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "413"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"data\": [\n        {\n            \"id\": 1,\n            \"customer\": \"supri\",\n            \"username\": \"8cc35f19-01c6-4105-870d-59e7b66d3eae\",\n            \"tickets\": [\n                {\n                    \"id\": 1,\n                    \"name\": \"VIP 1\",\n                    \"stock\": 9,\n                    \"price\": 5000,\n                    \"created_at\": \"2024-08-02T10:06:30.220712\",\n                    \"updated_at\": \"2024-08-02T10:06:30.220712\"\n                },\n                {\n                    \"id\": 4,\n                    \"name\": \"CAT 1\",\n                    \"stock\": 99,\n                    \"price\": 250,\n                    \"created_at\": \"2024-08-02T10:06:30.242514\",\n                    \"updated_at\": \"2024-08-02T10:06:30.242514\"\n                }\n            ],\n            \"total_price\": 5250,\n            \"created_at\": \"\",\n            \"updated_at\": \"\"\n        }\n    ]\n}"
+				}
+			]
+		}
+	]
+}
