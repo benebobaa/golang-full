@@ -14,7 +14,11 @@ export default function () {
         name: randomString(10),
         ticket_ids: [
             {
-                "ticket_id": 2,
+                "ticket_id": 3,
+                "quantity":1
+            },
+            {
+                "ticket_id": 4,
                 "quantity":1
             }
         ]
@@ -23,7 +27,7 @@ export default function () {
     const params = {
         headers: {
             'Content-Type': 'application/json',
-            'X-API-KEY': '8aba5f15-dfc0-4fbd-b85f-a471ba752203'
+            'X-API-KEY': '7cf8de4a-072c-47af-8bdf-038027f4e9b8'
         },
     };
 

@@ -48,9 +48,9 @@ func (e *EventRepositoryImpl) GetAll() []domain.Event {
 // Save implements EventRepository.
 func (e *EventRepositoryImpl) Save(ctx context.Context, value *domain.Event) (*domain.Event, error) {
 
-	query := `INSERT INTO events(name,location) VALUES ($1, $2) RETURNING id`
+	query := `INSERT INTO events(name,location) VALUES ($1, $2) RETURNING id, created_at, updated_at`
 
-	err := e.DB.QueryRowContext(ctx, query, value.Name, value.Location).Scan(&value.ID)
+	err := e.DB.QueryRowContext(ctx, query, value.Name, value.Location).Scan(&value.ID, &value.CreatedAt, &value.UpdatedAt)
 
 	if err != nil {
 		return nil, err

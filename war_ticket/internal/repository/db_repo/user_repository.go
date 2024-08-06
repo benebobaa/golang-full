@@ -41,7 +41,7 @@ func (u *UserRepositoryImpl) FindByApiKey(apiKey string) (*domain.User, error) {
 
 	var user domain.User
 
-	query := `SELECT * FROM users WHERE api_key = $1 LIMIT 1`
+	query := `SELECT username, api_key FROM users WHERE api_key = $1 LIMIT 1`
 
 	row := u.DB.QueryRow(query, apiKey)
 
