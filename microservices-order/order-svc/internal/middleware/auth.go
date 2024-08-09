@@ -29,7 +29,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		payload := pkg.UserInfo{
+		payload := &pkg.UserInfo{
 			ID:       claims.User.ID,
 			Username: claims.User.Username,
 		}

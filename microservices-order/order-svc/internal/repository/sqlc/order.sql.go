@@ -15,7 +15,7 @@ VALUES ($1, $2, $3, 'PENDING') RETURNING id, customer_id, username, product_name
 `
 
 type CreateOrderParams struct {
-	CustomerID  int32  `json:"customer_id"`
+	CustomerID  string `json:"customer_id"`
 	Username    string `json:"username"`
 	ProductName string `json:"product_name"`
 }

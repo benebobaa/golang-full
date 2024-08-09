@@ -9,6 +9,16 @@ import (
 	"github.com/joho/godotenv"
 )
 
+const (
+	privKeyPath = "keys/private.pem"
+	pubKeyPath  = "keys/public.pem"
+)
+
+var (
+	verifyKey *rsa.PublicKey
+	signKey   *rsa.PrivateKey
+)
+
 type Config struct {
 	Port           string
 	DBDriver       string
@@ -36,16 +46,6 @@ func LoadConfig() *Config {
 		GroupID:        os.Getenv("GROUP_ID"),
 	}
 }
-
-const (
-	privKeyPath = "pkg/keys/private.pem"
-	pubKeyPath  = "pkg/keys/public.pem"
-)
-
-var (
-	verifyKey *rsa.PublicKey
-	signKey   *rsa.PrivateKey
-)
 
 func InitializeKeys() error {
 	// Load private key

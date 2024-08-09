@@ -2,7 +2,9 @@ package http
 
 import (
 	"order-svc/internal/dto"
+	"order-svc/internal/middleware"
 	"order-svc/internal/usecase"
+	"order-svc/pkg"
 
 	"github.com/benebobaa/valo"
 	"github.com/gin-gonic/gin"
@@ -18,6 +20,8 @@ func NewOrderHandler(usecase *usecase.OrderUsecase) *OrderHandler {
 
 func (oh *OrderHandler) CreateOrder(c *gin.Context) {
 
+	user := c.MustGet(middleware.ClaimsKey).(*pkg.UserInfo)
+
 	var req dto.OrderRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -32,6 +36,8 @@ func (oh *OrderHandler) CreateOrder(c *gin.Context) {
 		return
 	}
 
+	req.CustomerID = user.ID
+	req.Username = user.Username
 	response, err := oh.usecase.CreateOrder(c, &req)
 
 	if err != nil {
