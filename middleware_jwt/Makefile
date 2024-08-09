@@ -20,5 +20,11 @@ migrateup:
 sqlc:
 	sqlc generate
 
-.PHONY: build run test createdb dropdb migratecreate migrateup migratedown sqlc dsn
+testall:
+	go test -v ./... -coverprofile=coverage.out
+
+viewcover:
+	go tool cover -html=coverage.out
+
+.PHONY: testall viewcover build run test createdb dropdb migratecreate migrateup migratedown sqlc dsn
 

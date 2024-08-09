@@ -1,50 +1,12 @@
 package pkg
 
 import (
-	"crypto/rsa"
 	"errors"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
-
-const (
-	privKeyPath = "pkg/keys/private.pem"
-	pubKeyPath  = "pkg/keys/public.pem"
-)
-
-var (
-	verifyKey *rsa.PublicKey
-	signKey   *rsa.PrivateKey
-)
-
-func InitializeKeys() error {
-	// Load private key
-	privateKeyPEM, err := os.ReadFile(privKeyPath)
-	if err != nil {
-		return err
-	}
-
-	signKey, err = jwt.ParseRSAPrivateKeyFromPEM(privateKeyPEM)
-	if err != nil {
-		return err
-	}
-
-	// Load public key
-	publicKeyPEM, err := os.ReadFile(pubKeyPath)
-	if err != nil {
-		return err
-	}
-
-	verifyKey, err = jwt.ParseRSAPublicKeyFromPEM(publicKeyPEM)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
 
 type Claims struct {
 	jwt.RegisteredClaims
@@ -52,8 +14,8 @@ type Claims struct {
 }
 
 type UserInfo struct {
-	ID    string `json:"id"`
-	Email string `json:"email"`
+	ID       string `json:"id"`
+	Username string `json:"username"`
 }
 
 type Token struct {
@@ -61,7 +23,7 @@ type Token struct {
 	ExpiresAt string `json:"expires_at"`
 }
 
-func GenerateToken(userID, email string) (Token, error) {
+func GenerateToken(userInfo UserInfo) (Token, error) {
 	expirationTime := time.Now().Add(5 * time.Minute)
 	claims := &Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -69,11 +31,11 @@ func GenerateToken(userID, email string) (Token, error) {
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),
 			Issuer:    "golang-book.beneboba.me",
-			Subject:   userID,
+			Subject:   userInfo.ID,
 		},
 		User: UserInfo{
-			ID:    userID,
-			Email: email,
+			ID:       userInfo.ID,
+			Username: userInfo.Username,
 		},
 	}
 
