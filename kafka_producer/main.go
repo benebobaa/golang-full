@@ -32,7 +32,7 @@ func main() {
 		msg := &sarama.ProducerMessage{
 			Topic: topic,
 			// Partition: 1,
-			Key:   sarama.StringEncoder(fmt.Sprintf("%d", 3)),
+			Key:   sarama.StringEncoder(fmt.Sprintf("%d", i)),
 			Value: sarama.StringEncoder(fmt.Sprintf("message-%d", i)),
 		}
 
