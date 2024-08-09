@@ -39,6 +39,8 @@ func (a *App) Run() {
 		Handler: a.gin,
 	}
 
+	log.Printf("Starting server on port %s", a.config.Port)
+
 	consumer, err := kafka.NewKafkaConsumer(
 		[]string{a.config.KafkaBroker},
 		a.config.GroupID,
@@ -54,18 +56,12 @@ func (a *App) Run() {
 	ctxCancel, cancel2 := context.WithCancel(context.Background())
 	defer cancel2()
 
-	readyChan := make(chan int)
-
 	go func() {
-		defer close(readyChan)
 		if err := consumer.Consume(ctxCancel); err != nil {
 			log.Fatalf("Error consuming Kafka messages: %v", err)
 		}
-		log.Println("Kafka consumer started")
-		readyChan <- 1
 	}()
 
-	<-readyChan
 	go func() {
 		log.Println("Starting server...")
 		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {

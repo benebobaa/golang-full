@@ -4,9 +4,14 @@ import (
 	"database/sql"
 	"log"
 	"time"
+
+	_ "github.com/lib/pq"
 )
 
 func NewDBConn(dbDriver, dbSource string) *sql.DB {
+
+	log.Println("dbDriver: ", dbDriver)
+	log.Println("dbSource: ", dbSource)
 	db, err := sql.Open(dbDriver, dbSource)
 
 	if err != nil {

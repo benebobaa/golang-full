@@ -23,5 +23,8 @@ func (u *Usecase) ValidateUser(request *dto.UserValidateRequest) (*dto.UserValid
 		return nil, err
 	}
 
+	response.Status = "success"
+	response.Message = "User validated successfully"
+
 	return &response, nil
 }

@@ -96,3 +96,51 @@ func (q *Queries) CreateWorkflowType(ctx context.Context, name string) (Workflow
 	err := row.Scan(&i.ID, &i.Name)
 	return i, err
 }
+
+const getWorkflowStepByType = `-- name: GetWorkflowStepByType :many
+SELECT
+    ws.order_index AS step_order,
+    s.name AS step_name,
+    s.description AS step_description
+FROM
+    workflow_types wt
+JOIN
+    workflows w ON wt.id = w.workflow_type_id
+JOIN
+    workflow_steps ws ON w.id = ws.workflow_id
+JOIN
+    steps s ON ws.step_id = s.id
+WHERE
+    wt.name = $1
+ORDER BY
+    ws.order_index
+`
+
+type GetWorkflowStepByTypeRow struct {
+	StepOrder       int32          `json:"step_order"`
+	StepName        string         `json:"step_name"`
+	StepDescription sql.NullString `json:"step_description"`
+}
+
+func (q *Queries) GetWorkflowStepByType(ctx context.Context, name string) ([]GetWorkflowStepByTypeRow, error) {
+	rows, err := q.db.QueryContext(ctx, getWorkflowStepByType, name)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetWorkflowStepByTypeRow{}
+	for rows.Next() {
+		var i GetWorkflowStepByTypeRow
+		if err := rows.Scan(&i.StepOrder, &i.StepName, &i.StepDescription); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

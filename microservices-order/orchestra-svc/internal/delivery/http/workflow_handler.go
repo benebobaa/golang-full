@@ -40,5 +40,23 @@ func (wf *WorkflowHandler) CreateWorkflow(c *gin.Context) {
 	}
 
 	c.JSON(201, response)
+}
 
+func (wf *WorkflowHandler) GetStepsByType(c *gin.Context) {
+
+	name := c.Query("type")
+
+	if name == "" {
+		c.JSON(400, gin.H{"error": "type is required"})
+		return
+	}
+
+	response, err := wf.wu.GetByType(c, name)
+
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, response)
 }

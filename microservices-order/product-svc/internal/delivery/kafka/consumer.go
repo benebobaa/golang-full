@@ -2,13 +2,10 @@ package kafka
 
 import (
 	"context"
-	"fmt"
-	"time"
-	"user-svc/internal/dto/event"
-	"user-svc/internal/usecase"
+	"log"
+	"product-svc/internal/usecase"
 
 	"github.com/IBM/sarama"
-	"github.com/google/uuid"
 )
 
 type KafkaConsumer struct {
@@ -29,45 +26,7 @@ func (h MessageHandler) ConsumeClaim(sess sarama.ConsumerGroupSession, claim sar
 
 	for msg := range claim.Messages() {
 
-		event, err := event.FromJSON(msg.Value)
-		if err != nil {
-			fmt.Printf("Error unmarshalling event: %v\n", err)
-			continue
-		}
-
-		request, err := event.GetPayloadAsUserValidateRequest()
-		if err != nil {
-			fmt.Printf("Error converting payload: %v\n", err)
-			continue
-		}
-
-		user, err := h.userUsecase.ValidateUser(request)
-		if err != nil {
-			fmt.Printf("Error validating user: %v\n", err)
-			continue
-		}
-
-		event.EventType = "user_validation"
-		event.Action = "validate"
-		event.Timestamp = time.Now()
-		event.Source = "user-svc"
-		event.Payload = user
-
-		if user.Error != "" {
-			event.Status = "error"
-		} else {
-			event.Status = "success"
-		}
-
-		fmt.Printf("User validated: %v\n", user)
-
-		eventBytes, err := event.ToJSON()
-
-		err = h.producer.SendMessage(uuid.New().String(), eventBytes)
-
-		if err != nil {
-			fmt.Printf("Error sending message: %v\n", err)
-		}
+		log.Printf("Received message: %s", string(msg.Value))
 
 		sess.MarkMessage(msg, "")
 	}

@@ -66,3 +66,7 @@ func (w *WorkflowUsecase) CreateWorkflow(ctx context.Context, workflow *dto.Work
 		Steps:    steps,
 	}, nil
 }
+
+func (w *WorkflowUsecase) GetByType(ctx context.Context, name string) ([]sqlc.GetWorkflowStepByTypeRow, error) {
+	return w.queries.GetWorkflowStepByType(ctx, name)
+}

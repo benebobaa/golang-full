@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"product-svc/internal/delivery/kafka"
+	"product-svc/internal/usecase"
 	"syscall"
 	"time"
-	"user-svc/internal/delivery/kafka"
-	"user-svc/internal/usecase"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,13 +27,13 @@ func NewApp(gin *gin.Engine) *App {
 func (a *App) Run() {
 	brokers := []string{"localhost:29092"} // Replace with your Kafka broker addresses
 	groupID := "user-svc-group"
-	topics := []string{"user-topic"}
+	topics := []string{"product-topic"}
 	orchestraTopic := "orchestra-topic"
 
 	a.startService()
 
 	server := http.Server{
-		Addr:    ":8083",
+		Addr:    ":8084",
 		Handler: a.gin,
 	}
 

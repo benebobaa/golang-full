@@ -15,6 +15,7 @@ type Querier interface {
 	CreateWorkflowInstanceStep(ctx context.Context, arg CreateWorkflowInstanceStepParams) (WorkflowInstanceStep, error)
 	CreateWorkflowStep(ctx context.Context, arg CreateWorkflowStepParams) (WorkflowStep, error)
 	CreateWorkflowType(ctx context.Context, name string) (WorkflowType, error)
+	GetWorkflowStepByType(ctx context.Context, name string) ([]GetWorkflowStepByTypeRow, error)
 }
 
 var _ Querier = (*Queries)(nil)
