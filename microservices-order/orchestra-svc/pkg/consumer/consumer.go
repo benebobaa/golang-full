@@ -1,7 +1,8 @@
-package kafka
+package consumer
 
 import (
 	"context"
+	"orchestra-svc/internal/delivery/messaging"
 
 	"github.com/IBM/sarama"
 )
@@ -15,7 +16,7 @@ type KafkaConsumer struct {
 func NewKafkaConsumer(
 	brokers []string, groupID string,
 	topics []string,
-	messageHandler *MessageHandler,
+	messageHandler *messaging.MessageHandler,
 ) (*KafkaConsumer, error) {
 	config := sarama.NewConfig()
 	config.Consumer.Group.Rebalance.Strategy = sarama.NewBalanceStrategyRoundRobin()

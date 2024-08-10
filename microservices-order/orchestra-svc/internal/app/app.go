@@ -7,8 +7,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"orchestra-svc/internal/delivery/kafka"
+	"orchestra-svc/internal/delivery/messaging"
 	"orchestra-svc/pkg"
+	"orchestra-svc/pkg/consumer"
+	"orchestra-svc/pkg/producer"
 	"os"
 	"os/signal"
 	"syscall"
@@ -21,7 +23,7 @@ type App struct {
 	db     *sql.DB
 	gin    *gin.Engine
 	config *pkg.Config
-	msg    *kafka.MessageHandler
+	msg    *messaging.MessageHandler
 }
 
 func NewApp(db *sql.DB, gin *gin.Engine, config *pkg.Config) *App {
@@ -30,7 +32,25 @@ func NewApp(db *sql.DB, gin *gin.Engine, config *pkg.Config) *App {
 
 func (a *App) Run() {
 
-	if err := a.startService(); err != nil {
+	userProducer, err := producer.NewKafkaProducer(
+		[]string{a.config.KafkaBroker},
+		a.config.UserTopic,
+	)
+	if err != nil {
+		log.Fatalf("Error creating Kafka producer: %v", err)
+	}
+	defer userProducer.Close()
+
+	productProducer, err := producer.NewKafkaProducer(
+		[]string{a.config.KafkaBroker},
+		a.config.ProductTopic,
+	)
+	if err != nil {
+		log.Fatalf("Error creating Kafka producer: %v", err)
+	}
+	defer productProducer.Close()
+
+	if err := a.startService(userProducer); err != nil {
 		log.Fatalf("Error starting service: %v", err)
 	}
 
@@ -39,9 +59,7 @@ func (a *App) Run() {
 		Handler: a.gin,
 	}
 
-	log.Printf("Starting server on port %s", a.config.Port)
-
-	consumer, err := kafka.NewKafkaConsumer(
+	consumer, err := consumer.NewKafkaConsumer(
 		[]string{a.config.KafkaBroker},
 		a.config.GroupID,
 		[]string{a.config.OrchestraTopic},
@@ -63,7 +81,7 @@ func (a *App) Run() {
 	}()
 
 	go func() {
-		log.Println("Starting server...")
+		log.Printf("Starting server on port %s", a.config.Port)
 		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("listen: %s\n", err)
 		}
@@ -73,8 +91,6 @@ func (a *App) Run() {
 
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
-	// Waiting signal send to chan quit
-	// Blocking channel
 	<-quit
 	log.Println("Shutdown Server ...")
 
@@ -87,7 +103,7 @@ func (a *App) Run() {
 
 	select {
 	case <-ctx.Done():
-		log.Println("timeout of 5 seconds.")
+		log.Println("timeout of 1 seconds.")
 	}
 
 	log.Println("Server exiting")

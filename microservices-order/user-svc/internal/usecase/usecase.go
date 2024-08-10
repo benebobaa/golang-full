@@ -1,30 +1,39 @@
 package usecase
 
 import (
+	"context"
+	"fmt"
 	"user-svc/internal/dto"
 	"user-svc/pkg/http_client"
+	"user-svc/pkg/producer"
 )
 
 type Usecase struct {
-	userClient *http_client.UserClient
+	userClient        *http_client.UserClient
+	orchestraProducer *producer.KafkaProducer
 }
 
-func NewUsecase(userClient *http_client.UserClient) *Usecase {
-	return &Usecase{userClient: userClient}
+func NewUsecase(userClient *http_client.UserClient, orchestraProducer *producer.KafkaProducer) *Usecase {
+	return &Usecase{
+		userClient:        userClient,
+		orchestraProducer: orchestraProducer,
+	}
 }
 
-func (u *Usecase) ValidateUser(request *dto.UserValidateRequest) (*dto.UserValidateResponse, error) {
+func (u *Usecase) ValidateUser(ctx context.Context, request *dto.UserValidateRequest) (*dto.UserResponse, error) {
 
-	var response dto.UserValidateResponse
+	var response dto.BaseResponse[dto.UserResponse]
 
-	err := u.userClient.Call("POST", request, &response)
+	err := u.userClient.GET(
+		fmt.Sprintf("/users/%s", request.UserID),
+		nil,
+		&response,
+	)
 
 	if err != nil {
 		return nil, err
 	}
 
-	response.Status = "success"
-	response.Message = "User validated successfully"
-
-	return &response, nil
+	// u.orchestraProducer.SendMessage()
+	return &response.Data, nil
 }

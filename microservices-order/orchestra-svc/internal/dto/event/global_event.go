@@ -19,6 +19,8 @@ func (ge GlobalEvent[T]) ToJSON() ([]byte, error) {
 	return json.Marshal(ge)
 }
 
-func (ge *GlobalEvent[T]) FromJSON(data []byte) error {
-	return json.Unmarshal(data, ge)
+func FromJSON[T any](data []byte) (GlobalEvent[T], error) {
+	var ge GlobalEvent[T]
+	err := json.Unmarshal(data, &ge)
+	return ge, err
 }

@@ -3,42 +3,36 @@ package event
 import (
 	"encoding/json"
 	"time"
-	"user-svc/internal/dto"
-	// "user-svc/internal/dto"
 )
 
-type GlobalEvent struct {
-	EventID   string      `json:"event_id"`
-	EventType string      `json:"event_type"`
-	Timestamp time.Time   `json:"timestamp"`
-	Source    string      `json:"source"`
-	Action    string      `json:"action"`
-	Status    string      `json:"status"`
-	Payload   interface{} `json:"payload"` // Keep as interface{}
+type GlobalEvent[T any] struct {
+	EventID   string    `json:"event_id"`
+	EventType string    `json:"event_type"`
+	Timestamp time.Time `json:"timestamp"`
+	Source    string    `json:"source"`
+	Action    string    `json:"action"`
+	Status    string    `json:"status"`
+	Payload   T         `json:"payload"`
 }
 
-func (e *GlobalEvent) ToJSON() ([]byte, error) {
-	return json.Marshal(e)
+func (ge GlobalEvent[T]) ToJSON() ([]byte, error) {
+	return json.Marshal(ge)
 }
 
-func FromJSON(data []byte) (*GlobalEvent, error) {
-	var event GlobalEvent
-	err := json.Unmarshal(data, &event)
-	if err != nil {
-		return nil, err
-	}
-	return &event, nil
+func FromJSON[T any](data []byte) (GlobalEvent[T], error) {
+	var ge GlobalEvent[T]
+	err := json.Unmarshal(data, &ge)
+	return ge, err
 }
 
-func (e *GlobalEvent) GetPayloadAsUserValidateRequest() (*dto.UserValidateRequest, error) {
-	payloadBytes, err := json.Marshal(e.Payload)
-	if err != nil {
-		return nil, err
+func NewEvent[T any]() GlobalEvent[T] {
+	return GlobalEvent[T]{
+		EventID:   "",
+		EventType: "",
+		Timestamp: time.Time{},
+		Source:    "user-svc",
+		Action:    "validate",
+		Status:    "",
+		Payload:   *new(T),
 	}
-	var payload dto.UserValidateRequest
-	err = json.Unmarshal(payloadBytes, &payload)
-	if err != nil {
-		return nil, err
-	}
-	return &payload, nil
 }

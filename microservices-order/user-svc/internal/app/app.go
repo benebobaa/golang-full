@@ -3,14 +3,18 @@ package app
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
-	"user-svc/internal/delivery/kafka"
+	kafka "user-svc/internal/delivery/messaging"
 	"user-svc/internal/usecase"
+	"user-svc/pkg"
+	"user-svc/pkg/consumer"
+	"user-svc/pkg/producer"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,34 +22,41 @@ import (
 type App struct {
 	gin     *gin.Engine
 	usecase *usecase.Usecase
+	config  *pkg.Config
+	msg     *kafka.MessageHandler
 }
 
-func NewApp(gin *gin.Engine) *App {
-	return &App{gin: gin}
+func NewApp(gin *gin.Engine, c *pkg.Config) *App {
+	return &App{
+		gin:     gin,
+		usecase: &usecase.Usecase{},
+		config:  c,
+	}
 }
 
 func (a *App) Run() {
-	brokers := []string{"localhost:29092"} // Replace with your Kafka broker addresses
-	groupID := "user-svc-group"
-	topics := []string{"user-topic"}
-	orchestraTopic := "orchestra-topic"
 
-	a.startService()
+	orchestraProducer, err := producer.NewKafkaProducer(
+		[]string{a.config.KafkaBroker},
+		a.config.OrchestraTopic,
+	)
+	if err != nil {
+		log.Fatalf("Error creating Kafka producer: %v", err)
+	}
+	defer orchestraProducer.Close()
+
+	a.startService(orchestraProducer)
 
 	server := http.Server{
-		Addr:    ":8083",
+		Addr:    fmt.Sprintf(":%s", a.config.Port),
 		Handler: a.gin,
 	}
 
-	producer, err := kafka.NewKafkaProducer(brokers, orchestraTopic)
-	if err != nil {
-		log.Fatalf("Failed to create producer: %v", err)
-	}
-	defer producer.Close()
-
-	consumer, err := kafka.NewKafkaConsumer(
-		brokers, groupID, topics,
-		a.usecase, producer,
+	consumer, err := consumer.NewKafkaConsumer(
+		[]string{a.config.KafkaBroker},
+		a.config.GroupID,
+		[]string{a.config.UserTopic},
+		a.msg,
 	)
 	defer consumer.Close()
 
@@ -73,8 +84,6 @@ func (a *App) Run() {
 
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
-	// Waiting signal send to chan quit
-	// Blocking channel
 	<-quit
 	log.Println("Shutdown Server ...")
 	log.Println("Closing Kafka consumer...")
